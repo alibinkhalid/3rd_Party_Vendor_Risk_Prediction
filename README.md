@@ -83,5 +83,186 @@ Synthetic data proves the code can run, not that a real model will work. Simulat
 13. Monitor data drift, event drift, calibration and false negatives.
 14. Revalidate and retire the model when necessary.
 
+
+## Model Performance Results
+Two machine learning models were evaluated:
+
+| Model | ROC AUC | Average Precision | Accuracy | Precision | Recall | F1 Score |
+|---------|---------|---------|---------|---------|---------|---------|
+| Logistic Regression | 0.697 | 0.688 | 0.642 | 0.615 | 0.626 | 0.620 |
+| Random Forest | 0.696 | 0.672 | 0.640 | 0.622 | 0.590 | 0.605 |
+
+The Logistic Regression model was selected as the final model because it achieved slightly better overall performance while remaining highly explainable, making it more suitable for audit and risk management use cases.
+
+### 1. ROC AUC = 0.697
+
+ROC AUC is the most important metric for this use case.
+It answers the question:
+> If we randomly pick one vendor that later experiences a risk event and one vendor that does not, what is the probability that the model ranks the risky vendor higher?
+
+For this model:
+
+```text
+ROC AUC = 69.7%
+```
+
+| ROC AUC | Interpretation |
+|----------|----------|
+| 0.50 | Random guessing |
+| 0.60 | Weak |
+| 0.70 | Fair / Useful |
+| 0.80 | Good |
+| 0.90+ | Exceptional |
+
+Therefore:
+
+```text
+ROC AUC = 0.697 ≈ 0.70
+```
+
+This represents **moderate discrimination power**.
+
+For many operational risk, compliance and audit datasets, a ROC AUC around 0.70 is considered respectable and demonstrates meaningful predictive capability.
+
+### 2. Precision = 0.615
+
+Precision answers:
+
+> Of the vendors flagged by the model as high risk, how many actually experienced a future risk event?
+
+For this model:
+
+```text
+Precision = 61.5%
+```
+
+In practical terms:
+
+```text
+If Audit investigates 100 vendors identified as high risk:
+
+Approximately 62 will experience a future risk event.
+Approximately 38 will not.
+```
+
+This indicates that the model is identifying a meaningful concentration of potential risk within the selected population.
+
+### 3. Recall = 0.626
+
+Recall answers:
+
+> Of all vendors that actually experienced a future risk event, how many did the model successfully identify?
+
+For this model:
+
+```text
+Recall = 62.6%
+```
+
+In practical terms:
+
+```text
+100 vendors experienced a future risk event.
+
+The model identified approximately 63.
+The model missed approximately 37.
+```
+
+For risk prioritisation, this is a reasonable balance between identifying future risks and limiting excessive false positives.
+
+### 4. F1 Score = 0.620
+
+The F1 Score balances Precision and Recall into a single metric.
+
+```text
+F1 Score = 0.620
+```
+
+This indicates that the model is reasonably balanced.
+
+The results suggest the model is neither:
+
+- Excessively flagging vendors as risky
+- Missing the majority of future risk events
+
+Instead, it provides a practical balance suited to audit prioritisation.
+
+### Confusion Matrix
+
+| | Predicted No Event | Predicted Event |
+|---|---:|---:|
+| Actual No Event | 436 | 229 |
+| Actual Event | 219 | 366 |
+
+### True Positives
+
+```text
+366 vendors
+```
+
+These vendors experienced a future risk event and were correctly identified by the model.
+
+This represents successful risk identification.
+
+### True Negatives
+
+```text
+436 vendors
+```
+
+These vendors did not experience a future risk event and were correctly assessed as lower risk.
+
+### False Positives
+
+```text
+229 vendors
+```
+
+These vendors were identified as high risk but did not subsequently experience a future risk event.
+
+This is not necessarily a problem.
+
+In an audit context, the objective is risk prioritisation rather than perfect prediction.
+
+A vendor may legitimately exhibit risk characteristics even if an event ultimately does not occur.
+
+### False Negatives
+
+```text
+219 vendors
+```
+
+These vendors experienced a future risk event but were not identified by the model.
+
+These represent missed opportunities for early identification.
+
+While reducing false negatives is desirable, the model still identified:
+
+```text
+366 future risk vendors
+while missing
+219 future risk vendors
+```
+
+which is considered acceptable for an early-stage proof-of-concept predictive risk model.
+
+### Overall Assessment
+
+From an audit perspective, the model demonstrates meaningful predictive capability and performs materially better than random selection.
+
+The model is capable of ranking vendors by future risk with approximately 70% discriminatory power and correctly identifying around 63% of future risk events while maintaining a reasonable level of precision.
+
+Rather than replacing professional judgement, the model provides a data-driven mechanism for prioritising audit effort towards vendors exhibiting characteristics associated with future control, compliance, operational, financial or concentration risk events.
+
+### Key Takeaway
+
+> The model demonstrates that predictive analytics can support a transition from retrospective sampling towards forward-looking, risk-based vendor selection by identifying vendors that are statistically more likely to experience future risk events.
+
+
+
+
+
+
+
 ## Governance disclaimer
 The model should direct attention, not autonomously determine findings, issue severity, contract termination or accountability. Adapt it only after appropriate data, model, legal, privacy, security and audit-methodology review.
